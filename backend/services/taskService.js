@@ -1,33 +1,31 @@
-import Task from '../models/Task.js';
+import Task from '../models/Task.js'
 
-export const createTaskService = async (taskData, username) => {
-  const task = await Task.create({ ...taskData, createdBy: username });
-  return task;
-};
+// Create a new task for the logged-in user
+export const createTask = async (taskData, userId) => {
+  const task = await Task.create({ ...taskData, createdBy: userId })
+  return task
+}
 
- export const getAllTasksService = async (username) => {
-  const tasks = await Task.find({ createdBy: username }).sort({ createdAt: -1 });
-  return tasks;
-};
+// Get all tasks belonging to the logged-in user
+export const getAllTasks = async (userId) => {
+  const tasks = await Task.find({ createdBy: userId }).sort({ createdAt: -1 })
+  return tasks
+}
 
-export const updateTaskService = async (taskId, updateData, username) => {
-  const task = await Task.findOne({ _id: taskId, createdBy: username });
-  if (!task) {
-    throw new Error('Task not found or unauthorized');
-  }
+// Update a task — ensures it belongs to the requesting user
+export const updateTask = async (taskId, updateData, userId) => {
+  const task = await Task.findOne({ _id: taskId, createdBy: userId })
+  if (!task) throw new Error('Task not found or unauthorized.')
 
-  const updatedTask = await Task.findByIdAndUpdate(taskId, updateData, { new: true, runValidators: true });
-  return updatedTask;
-};
+  const updatedTask = await Task.findByIdAndUpdate(taskId, updateData, { new: true, runValidators: true })
+  return updatedTask
+}
 
-export const deleteTaskService = async (taskId, username) => {
-  const task = await Task.findOne({ _id: taskId, createdBy: username });
-  if (!task) {
-    throw new Error('Task not found or unauthorized');
-  }
+// Delete a task — ensures it belongs to the requesting user
+export const deleteTask = async (taskId, userId) => {
+  const task = await Task.findOne({ _id: taskId, createdBy: userId })
+  if (!task) throw new Error('Task not found or unauthorized.')
 
-  await Task.findByIdAndDelete(taskId);
-  return { message: 'Task deleted successfully' };
-};
-
-// export { createTask, getAllTasks, updateTask, deleteTask };
+  await Task.findByIdAndDelete(taskId)
+  return { message: 'Task deleted successfully.' }
+}

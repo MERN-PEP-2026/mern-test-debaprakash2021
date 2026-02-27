@@ -1,82 +1,82 @@
-import bcrypt from 'bcryptjs';
-import User from '../models/User.js';
-import generateToken from '../utils/generateToken.js';
-import generateOtp from '../utils/generateOtp.js';
+import bcrypt from 'bcryptjs'
+import User from '../models/User.js'
+import generateToken from '../utils/generateToken.js'
+import generateOtp from '../utils/generateOtp.js'
+import sendEmail from '../utils/sendEmail.js'
 
-// Saves user as unverified and returns OTP — replaces old register flow
-export const initiateSignupService = async (username, password) => {
-  const existingUser = await User.findOne({ username });
+// Step 1 of signup — saves user as unverified and sends OTP to email
+export const initiateSignupService = async (name, email, password) => {
+  const existingUser = await User.findOne({ email })
 
   if (existingUser && existingUser.isVerified) {
-    throw new Error('Username already exists');
+    throw new Error('Email already registered. Please login.')
   }
 
-  const { otp, otpExpiry } = generateOtp();
+  const { otp, otpExpiry } = generateOtp()
 
   if (existingUser && !existingUser.isVerified) {
-    // User initiated before but never verified — refresh OTP
-    existingUser.password = password;
-    existingUser.otp = otp;
-    existingUser.otpExpiry = otpExpiry;
-    await existingUser.save();
+    // Re-initiate for unverified user — refresh credentials and OTP
+    existingUser.name = name
+    existingUser.password = password
+    existingUser.otp = otp
+    existingUser.otpExpiry = otpExpiry
+    await existingUser.save()
   } else {
-    // Brand new user — create with isVerified false
-    const user = new User({ username, password, otp, otpExpiry, isVerified: false });
-    await user.save();
+    const user = new User({ name, email, password, otp, otpExpiry, isVerified: false })
+    await user.save()
   }
 
-  // In production, send OTP via email or SMS here
-  // Returning OTP in response for development/testing purposes
-  return { message: 'OTP generated successfully. Please verify to complete signup.', otp };
-};
+  // Send OTP to user's email via SMTP
+  await sendEmail(email, otp)
 
-// Verifies OTP and activates the user account
-export const verifySignupService = async (username, otp) => {
-  const user = await User.findOne({ username });
+  return { message: 'OTP sent to your email. Please verify to complete signup.' }
+}
+
+// Step 2 of signup — verifies OTP and activates the account
+export const verifySignupService = async (email, otp) => {
+  const user = await User.findOne({ email })
 
   if (!user) {
-    throw new Error('User not found. Please initiate signup first.');
+    throw new Error('User not found. Please initiate signup first.')
   }
-
   if (user.isVerified) {
-    throw new Error('User is already verified. Please login.');
+    throw new Error('Already verified. Please login.')
   }
-
   if (user.otp !== otp) {
-    throw new Error('Invalid OTP');
+    throw new Error('Invalid OTP.')
   }
-
   if (user.otpExpiry < new Date()) {
-    throw new Error('OTP has expired. Please initiate signup again.');
+    throw new Error('OTP has expired. Please signup again.')
   }
 
-  // OTP is valid — activate account and clear OTP fields
-  user.isVerified = true;
-  user.otp = null;
-  user.otpExpiry = null;
-  await user.save();
+  // Activate account and clear OTP fields
+  user.isVerified = true
+  user.otp = null
+  user.otpExpiry = null
+  await user.save()
 
-  return { message: 'Account verified successfully. You can now login.' };
-};
+  // Return token so user is logged in immediately after verification
+  const token = generateToken({ id: user._id, email: user.email, name: user.name })
 
-// Logs in only verified users and returns JWT token
-export const loginUserService = async (username, password) => {
-  const user = await User.findOne({ username });
-
-  if (!user) {
-    throw new Error('Invalid username or password');
+  return {
+    message: 'Account verified successfully.',
+    token,
+    name: user.name,
+    email: user.email,
   }
+}
 
-  if (!user.isVerified) {
-    throw new Error('Account not verified. Please complete OTP verification.');
-  }
+// Login — validates email + password and returns JWT
+export const loginUserService = async (email, password) => {
+  const user = await User.findOne({ email })
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new Error('Invalid username or password');
-  }
+  if (!user) throw new Error('Invalid email or password.')
+  if (!user.isVerified) throw new Error('Account not verified. Please check your email for OTP.')
 
-  const token = generateToken({ id: user._id, username: user.username });
+  const isMatch = await bcrypt.compare(password, user.password)
+  if (!isMatch) throw new Error('Invalid email or password.')
 
-  return { token, username: user.username };
-};
+  const token = generateToken({ id: user._id, email: user.email, name: user.name })
+
+  return { token, name: user.name, email: user.email }
+}
