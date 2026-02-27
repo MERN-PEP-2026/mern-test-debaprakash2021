@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #09090b;
+    color: #f4f4f5;
+    -webkit-font-smoothing: antialiased;
+    font-family: 'DM Sans', sans-serif;
+  }
+}
+
+@layer utilities {
+  .input-base {
+    width: 100%;
+    background-color: #27272a;
+    border: 1px solid #3f3f46;
+    border-radius: 0.5rem;
+    padding: 0.625rem 1rem;
+    color: #f4f4f5;
+    transition: all 0.2s;
+  }
+  .input-base:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 1px #22c55e;
+  }
+  .input-base::placeholder {
+    color: #71717a;
+  }
+  .btn-primary {
+    width: 100%;
+    background-color: #22c55e;
+    color: white;
+    font-weight: 600;
+    padding: 0.625rem 0;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    background-color: #16a34a;
+  }
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+  .btn-secondary {
+    background-color: #3f3f46;
+    color: #f4f4f5;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-secondary:hover {
+    background-color: #52525b;
+  }
+  .btn-danger {
+    background-color: rgba(239,68,68,0.1);
+    color: #f87171;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(239,68,68,0.2);
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-danger:hover {
+    background-color: rgba(239,68,68,0.2);
+  }
+  .card {
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+  }
+}
