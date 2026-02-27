@@ -1,13 +1,14 @@
-import express from 'express';
-import http from 'http';
-const app = express();
+import 'dotenv/config';
+import app from './app.js';
+import connectDB from './config/db.js';
 
-const server =http.createServer(app);
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
+const PORT = process.env.PORT || 5019;
 
+const startServer = async () => {
+  await connectDB();
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+};
 
-server.listen(5019, () => {
-  console.log(`Server is running on port 5019`);
-});
+startServer();
