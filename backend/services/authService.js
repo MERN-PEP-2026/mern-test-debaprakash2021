@@ -55,7 +55,7 @@ export const verifySignupService = async (email, otp) => {
   user.otpExpiry = null
   await user.save()
 
-  // Return token so user is logged in immediately after verification
+  // Auto login — return token immediately after verification
   const token = generateToken({ id: user._id, email: user.email, name: user.name })
 
   return {

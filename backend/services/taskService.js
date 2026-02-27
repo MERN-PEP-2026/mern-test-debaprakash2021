@@ -1,19 +1,19 @@
 import Task from '../models/Task.js'
 
 // Create a new task for the logged-in user
-export const createTask = async (taskData, userId) => {
+export const createTaskService = async (taskData, userId) => {
   const task = await Task.create({ ...taskData, createdBy: userId })
   return task
 }
 
 // Get all tasks belonging to the logged-in user
-export const getAllTasks = async (userId) => {
+export const getAllTasksService = async (userId) => {
   const tasks = await Task.find({ createdBy: userId }).sort({ createdAt: -1 })
   return tasks
 }
 
 // Update a task — ensures it belongs to the requesting user
-export const updateTask = async (taskId, updateData, userId) => {
+export const updateTaskService = async (taskId, updateData, userId) => {
   const task = await Task.findOne({ _id: taskId, createdBy: userId })
   if (!task) throw new Error('Task not found or unauthorized.')
 
@@ -22,7 +22,7 @@ export const updateTask = async (taskId, updateData, userId) => {
 }
 
 // Delete a task — ensures it belongs to the requesting user
-export const deleteTask = async (taskId, userId) => {
+export const deleteTaskService = async (taskId, userId) => {
   const task = await Task.findOne({ _id: taskId, createdBy: userId })
   if (!task) throw new Error('Task not found or unauthorized.')
 
