@@ -2,33 +2,46 @@ import { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext(null)
 
-// Provides auth state (token, username) and helpers to entire app
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('token') || null)
-  const [username, setUsername] = useState(localStorage.getItem('username') || null)
+  const [token, setToken]   = useState(localStorage.getItem('token') || null)
+  const [name, setName]     = useState(localStorage.getItem('name') || null)
+  const [email, setEmail]   = useState(localStorage.getItem('email') || null)
+  const [avatar, setAvatar] = useState(localStorage.getItem('avatar') || null)
 
-  // Store token and username in state and localStorage after login
-  const login = (token, username) => {
+  // Store auth data in state and localStorage after login or verify-signup
+  const login = (token, name, email, avatar = '') => {
     localStorage.setItem('token', token)
-    localStorage.setItem('username', username)
+    localStorage.setItem('name', name)
+    localStorage.setItem('email', email)
+    localStorage.setItem('avatar', avatar)
     setToken(token)
-    setUsername(username)
+    setName(name)
+    setEmail(email)
+    setAvatar(avatar)
   }
 
-  // Clear all auth data on logout
+  // Update name and avatar in context after profile edit
+  const updateProfile = (updatedUser) => {
+    localStorage.setItem('name', updatedUser.name)
+    localStorage.setItem('avatar', updatedUser.profileImage || '')
+    setName(updatedUser.name)
+    setAvatar(updatedUser.profileImage || '')
+  }
+
+  // Clear everything on logout
   const logout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('username')
+    localStorage.clear()
     setToken(null)
-    setUsername(null)
+    setName(null)
+    setEmail(null)
+    setAvatar(null)
   }
 
   return (
-    <AuthContext.Provider value={{ token, username, login, logout }}>
+    <AuthContext.Provider value={{ token, name, email, avatar, login, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-// Custom hook — use this in any component to access auth context
 export const useAuth = () => useContext(AuthContext)
