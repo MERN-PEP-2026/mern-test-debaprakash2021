@@ -370,3 +370,5 @@ For issues, questions, or suggestions, please open an issue on GitHub or contact
 ---
 
 **Happy Task Managing! 🚀**
+
+**THANK YOU**
