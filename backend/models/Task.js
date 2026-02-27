@@ -16,6 +16,17 @@ const taskSchema = new mongoose.Schema(
       enum: ['pending', 'completed'],
       default: 'pending',
     },
+    // Priority level of the task
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium',
+    },
+    // Optional due date for the task
+    dueDate: {
+      type: Date,
+      default: null,
+    },
     // References the User who created this task
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

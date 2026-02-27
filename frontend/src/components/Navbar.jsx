@@ -1,10 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
-// Top navbar — shows app name, profile avatar, and logout
+// Top navbar — app name, theme toggle, profile avatar, logout
 const Navbar = () => {
   const { name, avatar, logout } = useAuth()
+  const { theme, toggleTheme }   = useTheme()
   const navigate = useNavigate()
+  const isDark   = theme === 'dark'
 
   const handleLogout = () => {
     logout()
@@ -12,28 +15,57 @@ const Navbar = () => {
   }
 
   return (
-    <header className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-10">
+    <header className="navbar">
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
+
+        {/* Logo */}
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => navigate('/dashboard')}
+        >
           <span className="text-green-400 text-lg">✦</span>
-          <span className="font-bold text-zinc-100 tracking-tight">TaskManager</span>
+          <span className="font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            TaskManager
+          </span>
         </div>
+
+        {/* Right controls */}
         <div className="flex items-center gap-3">
-          {/* Profile icon — navigates to profile page */}
-          <button onClick={() => navigate('/profile')}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
-            <div className="w-8 h-8 rounded-full bg-zinc-700 border border-zinc-600 overflow-hidden flex items-center justify-center">
+
+          {/* Dark / Light toggle */}
+          <button
+            onClick={toggleTheme}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="w-9 h-9 rounded-lg flex items-center justify-center transition-all cursor-pointer"
+            style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border)' }}
+          >
+            {isDark ? '☀️' : '🌙'}
+          </button>
+
+          {/* Profile */}
+          <button
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <div
+              className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center"
+              style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border)' }}
+            >
               {avatar ? (
                 <img src={avatar} alt="avatar" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-zinc-300 text-sm font-semibold">
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
                   {name?.charAt(0)?.toUpperCase()}
                 </span>
               )}
             </div>
-            <span className="text-zinc-400 text-sm hidden sm:block">{name}</span>
+            <span className="text-sm hidden sm:block" style={{ color: 'var(--text-secondary)' }}>
+              {name}
+            </span>
           </button>
-          <button onClick={handleLogout} className="btn-secondary cursor-pointer">Logout</button>
+
+          {/* Logout */}
+          <button onClick={handleLogout} className="btn-secondary">Logout</button>
         </div>
       </div>
     </header>
